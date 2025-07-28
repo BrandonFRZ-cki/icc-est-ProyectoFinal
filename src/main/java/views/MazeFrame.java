@@ -15,9 +15,9 @@ public class MazeFrame extends JFrame {
 
     // Mapeo visible -> interno
     private final Map<String, String> nombreInternoAlgoritmo = Map.of(
-            "Recursivo", "Recursivo 2D",
-            "Recursivo Completo", "Recursivo 4D",
-            "Recursivo Completo BT", "Recursivo 4D BT",
+            "Recursivo", "Recursivo",
+            "Recursivo Completo", "Recursivo Completo",
+            "Recursivo Completo BT", "Recursivo Completo BT",
             "BFS", "BFS",
             "DFS", "DFS"
     );
