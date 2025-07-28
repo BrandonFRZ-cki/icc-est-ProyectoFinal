@@ -1,7 +1,6 @@
 package views;
 
 import controllers.MazeController;
-import models.Cell;
 import solver.MazeSolver;
 
 import javax.swing.*;
@@ -18,10 +17,11 @@ public class MazeFrame extends JFrame {
         this.controller = controller;
         this.solverMap = controller.getAlgoritmos();
         setTitle("Resolución de Laberintos");
-        setSize(800, 600);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         initComponents(filas, columnas);
+        pack(); // Ajusta al tamaño preferido de los componentes
+        setExtendedState(JFrame.MAXIMIZED_BOTH); // Maximiza la ventana al abrir
     }
 
     private void initComponents(int filas, int columnas) {
@@ -68,11 +68,9 @@ public class MazeFrame extends JFrame {
 
         add(panelBotones, BorderLayout.NORTH);
 
-        // ✅ Crear MazePanel con filas y columnas
         mazePanel = new MazePanel(filas, columnas);
         add(mazePanel, BorderLayout.CENTER);
 
-        // ✅ Acciones
         btnSetStart.addActionListener(e -> mazePanel.setCurrentMode(MazePanel.Mode.SET_START));
         btnSetEnd.addActionListener(e -> mazePanel.setCurrentMode(MazePanel.Mode.SET_END));
         btnToggleWall.addActionListener(e -> mazePanel.setCurrentMode(MazePanel.Mode.TOGGLE_WALL));

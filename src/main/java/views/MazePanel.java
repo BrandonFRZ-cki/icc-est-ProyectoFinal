@@ -141,12 +141,20 @@ public class MazePanel extends JPanel {
     }
 
     @Override
+    public Dimension getPreferredSize() {
+        return new Dimension(cols * 25, rows * 25); // Puedes ajustar el tamaño por celda aquí
+    }
+
+    @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
 
-        int anchoDisponible = getWidth();
-        int altoDisponible = getHeight();
-        int cellSize = Math.min(anchoDisponible / cols, altoDisponible / rows);
+        int anchoPanel = getWidth();
+        int altoPanel = getHeight();
+
+        int cellWidth = anchoPanel / cols;
+        int cellHeight = altoPanel / rows;
+        int cellSize = Math.min(cellWidth, cellHeight);
 
         for (int i = 0; i < rows; i++) {
             for (int j = 0; j < cols; j++) {
@@ -158,9 +166,11 @@ public class MazePanel extends JPanel {
                     case PATH -> g.setColor(Color.CYAN);
                     case VISITED -> g.setColor(Color.LIGHT_GRAY);
                 }
-                g.fillRect(j * cellSize, i * cellSize, cellSize, cellSize);
+                int x = j * cellSize;
+                int y = i * cellSize;
+                g.fillRect(x, y, cellSize, cellSize);
                 g.setColor(Color.GRAY);
-                g.drawRect(j * cellSize, i * cellSize, cellSize, cellSize);
+                g.drawRect(x, y, cellSize, cellSize);
             }
         }
     }
