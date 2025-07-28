@@ -1,7 +1,6 @@
 package dao;
 
 import models.AlgorithmResult;
-
 import java.util.List;
 
 public interface AlgorithmResultDAO {

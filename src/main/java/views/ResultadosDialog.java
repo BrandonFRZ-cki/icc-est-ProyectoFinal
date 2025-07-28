@@ -1,34 +1,75 @@
 package views;
 
+import dao.AlgorithmResultDAO;
+import models.AlgorithmResult;
 import models.Cell;
 
 import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.util.List;
 import java.util.Set;
 
 public class ResultadosDialog extends JDialog {
-    public ResultadosDialog(JFrame parent, List<Cell> camino, Set<Cell> visitadas) {
-        super(parent, "Resultados", true);
+    private final AlgorithmResultDAO resultDAO;
+    private JTable table;
+    private DefaultTableModel tableModel;
+
+    public ResultadosDialog(Frame parent, AlgorithmResultDAO resultDAO) {
+        super(parent, "Resultados de Algoritmos", true);
+        this.resultDAO = resultDAO;
+        initializeUI();
+    }
+
+    private void initializeUI() {
+        setSize(700, 400);
+        setLocationRelativeTo(null);
         setLayout(new BorderLayout());
 
-        JTextArea area = new JTextArea();
-        area.append("Camino encontrado:\n");
-        for (Cell c : camino) {
-            area.append("(" + c.getRow() + "," + c.getCol() + ")\n");
-        }
-        area.append("\nCeldas visitadas:\n");
-        for (Cell c : visitadas) {
-            area.append("(" + c.getRow() + "," + c.getCol() + ")\n");
-        }
+        // Tabla
+        tableModel = new DefaultTableModel(new String[]{"Algoritmo", "Celdas", "Tiempo (ns)"}, 0);
+        table = new JTable(tableModel);
+        JScrollPane scrollPane = new JScrollPane(table);
+        add(scrollPane, BorderLayout.CENTER);
 
-        add(new JScrollPane(area), BorderLayout.CENTER);
-        JButton cerrar = new JButton("Cerrar");
-        cerrar.addActionListener(e -> dispose());
-        add(cerrar, BorderLayout.SOUTH);
+        // Botones
+        JPanel panelBotones = new JPanel(new FlowLayout());
 
-        setSize(300, 400);
-        setLocationRelativeTo(parent);
-        setVisible(true);
+        JButton btnGraficar = new JButton("Graficar Resultados");
+        btnGraficar.setEnabled(false); // Desactivado hasta implementar
+        panelBotones.add(btnGraficar);
+
+        JButton btnLimpiar = new JButton("Limpiar Resultados");
+        btnLimpiar.addActionListener(e -> limpiarResultados());
+        panelBotones.add(btnLimpiar);
+
+        add(panelBotones, BorderLayout.SOUTH);
+
+        cargarResultados();
+    }
+
+    private void cargarResultados() {
+        tableModel.setRowCount(0);
+        List<AlgorithmResult> resultados = resultDAO.listar(); // método correcto del DAO
+        for (AlgorithmResult r : resultados) {
+            tableModel.addRow(new Object[]{r.getAlgorithmName(), r.getSteps(), r.getTimeNano()});
+        }
+    }
+
+    // Método aún no implementado
+    private void graficarResultados() {
+        // Aquí iría la lógica de gráficos si decides agregarla después
+    }
+
+    private void limpiarResultados() {
+        int opcion = JOptionPane.showConfirmDialog(this,
+                "¿Estás seguro de que deseas eliminar todos los resultados?",
+                "Confirmar eliminación",
+                JOptionPane.YES_NO_OPTION);
+
+        if (opcion == JOptionPane.YES_OPTION) {
+            resultDAO.limpiar();
+            cargarResultados();
+        }
     }
 }

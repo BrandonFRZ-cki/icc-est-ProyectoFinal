@@ -4,5 +4,5 @@ import models.Cell;
 import models.SolveResults;
 
 public interface MazeSolver {
-    SolveResults resolver(boolean[][] laberinto, Cell inicio, Cell fin);
+    SolveResults solve(boolean[][] maze, Cell start, Cell end);
 }
