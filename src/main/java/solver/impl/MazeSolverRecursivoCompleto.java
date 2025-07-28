@@ -7,6 +7,7 @@ import solver.MazeSolver;
 import java.util.*;
 
 public class MazeSolverRecursivoCompleto implements MazeSolver {
+
     private final List<Cell> path = new ArrayList<>();
     private final Set<Cell> visited = new HashSet<>();
     private boolean[][] grid;
@@ -19,8 +20,13 @@ public class MazeSolverRecursivoCompleto implements MazeSolver {
         path.clear();
         visited.clear();
 
-        findPath(start);
-        return new SolveResults(path, visited);
+        boolean exito = findPath(start);
+
+        if (exito) {
+            return new SolveResults(new ArrayList<>(path), new HashSet<>(visited));
+        } else {
+            return null; // para que se muestre el mensaje "No se pudo encontrar un camino"
+        }
     }
 
     private boolean findPath(Cell current) {
@@ -46,7 +52,7 @@ public class MazeSolverRecursivoCompleto implements MazeSolver {
             return true;
         }
 
-        // Retroceso si no hay camino
+        // Retroceso (backtrack)
         path.remove(path.size() - 1);
         return false;
     }

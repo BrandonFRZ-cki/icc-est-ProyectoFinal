@@ -10,6 +10,9 @@ import java.awt.event.MouseEvent;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * Panel gráfico que representa el laberinto con celdas interactivas.
+ */
 public class MazePanel extends JPanel {
 
     private CellState[][] cellStates;
@@ -21,10 +24,16 @@ public class MazePanel extends JPanel {
 
     private Mode currentMode = Mode.NONE;
 
+    /**
+     * Modos de interacción del mouse.
+     */
     public enum Mode {
         NONE, SET_START, SET_END, TOGGLE_WALL
     }
 
+    /**
+     * Constructor del panel del laberinto.
+     */
     public MazePanel(int rows, int cols) {
         this.rows = rows;
         this.cols = cols;
@@ -48,23 +57,21 @@ public class MazePanel extends JPanel {
                 Cell cell = new Cell(row, col);
 
                 switch (currentMode) {
-                    case SET_START:
+                    case SET_START -> {
                         if (startCell != null) {
                             cellStates[startCell.getRow()][startCell.getCol()] = CellState.EMPTY;
                         }
                         startCell = cell;
                         cellStates[row][col] = CellState.START;
-                        break;
-
-                    case SET_END:
+                    }
+                    case SET_END -> {
                         if (endCell != null) {
                             cellStates[endCell.getRow()][endCell.getCol()] = CellState.EMPTY;
                         }
                         endCell = cell;
                         cellStates[row][col] = CellState.END;
-                        break;
-
-                    case TOGGLE_WALL:
+                    }
+                    case TOGGLE_WALL -> {
                         if (!cell.equals(startCell) && !cell.equals(endCell)) {
                             if (cellStates[row][col] == CellState.WALL) {
                                 cellStates[row][col] = CellState.EMPTY;
@@ -72,10 +79,8 @@ public class MazePanel extends JPanel {
                                 cellStates[row][col] = CellState.WALL;
                             }
                         }
-                        break;
-
-                    default:
-                        break;
+                    }
+                    default -> {}
                 }
 
                 repaint();
@@ -83,6 +88,9 @@ public class MazePanel extends JPanel {
         });
     }
 
+    /**
+     * Reinicia la cuadrícula del laberinto.
+     */
     public void resetGrid() {
         for (int i = 0; i < rows; i++) {
             for (int j = 0; j < cols; j++) {
@@ -110,6 +118,9 @@ public class MazePanel extends JPanel {
         return cellStates;
     }
 
+    /**
+     * Dibuja el camino solucionado en el laberinto.
+     */
     public void setPath(List<Cell> path) {
         for (Cell cell : path) {
             if (!cell.equals(startCell) && !cell.equals(endCell)) {
@@ -119,6 +130,9 @@ public class MazePanel extends JPanel {
         repaint();
     }
 
+    /**
+     * Muestra las celdas visitadas por el algoritmo.
+     */
     public void setVisited(Set<Cell> visited) {
         for (Cell cell : visited) {
             if (!cell.equals(startCell) && !cell.equals(endCell)
@@ -129,6 +143,9 @@ public class MazePanel extends JPanel {
         repaint();
     }
 
+    /**
+     * Limpia el camino y los nodos visitados.
+     */
     public void clearPathAndVisited() {
         for (int i = 0; i < rows; i++) {
             for (int j = 0; j < cols; j++) {
@@ -140,11 +157,17 @@ public class MazePanel extends JPanel {
         repaint();
     }
 
+    /**
+     * Define el tamaño preferido del panel.
+     */
     @Override
     public Dimension getPreferredSize() {
-        return new Dimension(cols * 25, rows * 25); // Puedes ajustar el tamaño por celda aquí
+        return new Dimension(cols * 35, rows * 35);
     }
 
+    /**
+     * Dibuja las celdas del laberinto.
+     */
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);

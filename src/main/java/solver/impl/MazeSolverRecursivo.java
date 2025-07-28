@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Set;
 
 public class MazeSolverRecursivo implements MazeSolver {
+
     private final List<Cell> path = new ArrayList<>();
     private final Set<Cell> visited = new HashSet<>();
     private boolean[][] grid;
@@ -22,8 +23,8 @@ public class MazeSolverRecursivo implements MazeSolver {
         path.clear();
         visited.clear();
 
-        boolean success = findPath(start);
-        return new SolveResults(path, visited);
+        findPath(start);
+        return new SolveResults(new ArrayList<>(path), new HashSet<>(visited));
     }
 
     private boolean findPath(Cell current) {
@@ -41,12 +42,15 @@ public class MazeSolverRecursivo implements MazeSolver {
             return true;
         }
 
-        // Recursión solo hacia abajo y derecha
-        if (findPath(new Cell(row + 1, col)) || findPath(new Cell(row, col + 1))) {
+        // Buscar en las 4 direcciones
+        if (findPath(new Cell(row + 1, col)) || // abajo
+                findPath(new Cell(row - 1, col)) || // arriba
+                findPath(new Cell(row, col + 1)) || // derecha
+                findPath(new Cell(row, col - 1))) { // izquierda
             return true;
         }
 
-        // Retroceder si no se encuentra camino
+        // Retroceder (backtrack)
         path.remove(path.size() - 1);
         return false;
     }

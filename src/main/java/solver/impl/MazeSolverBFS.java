@@ -17,9 +17,14 @@ public class MazeSolverBFS implements MazeSolver {
         queue.offer(start);
         visited.add(start);
 
+        boolean found = false;
+
         while (!queue.isEmpty()) {
             Cell current = queue.poll();
-            if (current.equals(end)) break;
+            if (current.equals(end)) {
+                found = true;
+                break;
+            }
 
             for (Cell neighbor : getNeighbors(current, maze)) {
                 if (!visited.contains(neighbor)) {
@@ -30,7 +35,7 @@ public class MazeSolverBFS implements MazeSolver {
             }
         }
 
-        List<Cell> path = buildPath(end, parentMap);
+        List<Cell> path = found ? buildPath(end, parentMap) : Collections.emptyList();
         return new SolveResults(path, visited);
     }
 
@@ -47,7 +52,7 @@ public class MazeSolverBFS implements MazeSolver {
         List<Cell> neighbors = new ArrayList<>();
         int r = cell.getRow();
         int c = cell.getCol();
-        int[][] dirs = {{-1,0},{1,0},{0,-1},{0,1}};
+        int[][] dirs = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}}; // solo 4 direcciones (NSEW)
 
         for (int[] d : dirs) {
             int nr = r + d[0], nc = c + d[1];

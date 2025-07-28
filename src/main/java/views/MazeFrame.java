@@ -13,18 +13,28 @@ public class MazeFrame extends JFrame {
     private MazeController controller;
     private Map<String, MazeSolver> solverMap;
 
+    // Mapeo visible -> interno
+    private final Map<String, String> nombreInternoAlgoritmo = Map.of(
+            "Recursivo", "Recursivo 2D",
+            "Recursivo Completo", "Recursivo 4D",
+            "Recursivo Completo BT", "Recursivo 4D BT",
+            "BFS", "BFS",
+            "DFS", "DFS"
+    );
+
     public MazeFrame(int filas, int columnas, MazeController controller) {
         this.controller = controller;
         this.solverMap = controller.getAlgoritmos();
         setTitle("Resolución de Laberintos");
         setDefaultCloseOperation(EXIT_ON_CLOSE);
+        setMinimumSize(new Dimension(600, 500));
         setLocationRelativeTo(null);
         initComponents(filas, columnas);
-        pack(); // Ajusta al tamaño preferido de los componentes
-        setExtendedState(JFrame.MAXIMIZED_BOTH); // Maximiza la ventana al abrir
+        setExtendedState(JFrame.MAXIMIZED_BOTH); // iniciar maximizado
     }
 
     private void initComponents(int filas, int columnas) {
+        // Menú
         JMenuBar menuBar = new JMenuBar();
         JMenu menuArchivo = new JMenu("Archivo");
         JMenuItem nuevo = new JMenuItem("Nuevo laberinto");
@@ -39,38 +49,43 @@ public class MazeFrame extends JFrame {
         menuAyuda.add(ayuda);
         menuAyuda.add(acercaDe);
         menuBar.add(menuAyuda);
-
         setJMenuBar(menuBar);
 
-        JPanel panelBotones = new JPanel();
+        // Panel superior
+        JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
         JButton btnSetStart = new JButton("Set Start");
         JButton btnSetEnd = new JButton("Set End");
         JButton btnToggleWall = new JButton("Toggle Wall");
+        topPanel.add(btnSetStart);
+        topPanel.add(btnSetEnd);
+        topPanel.add(btnToggleWall);
+        add(topPanel, BorderLayout.NORTH);
+
+        // MazePanel centrado y escalable
+        mazePanel = new MazePanel(filas, columnas);
+        JPanel centerWrapper = new JPanel(new GridBagLayout());
+        centerWrapper.setBackground(Color.LIGHT_GRAY);
+        centerWrapper.add(mazePanel, new GridBagConstraints());
+        add(centerWrapper, BorderLayout.CENTER);
+
+        // Panel inferior
+        JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
+        bottomPanel.add(new JLabel("Algoritmo:"));
+
+        comboBoxAlgoritmos = new JComboBox<>(new String[]{
+                "Recursivo", "Recursivo Completo", "Recursivo Completo BT", "BFS", "DFS"
+        });
         JButton btnResolver = new JButton("Resolver");
         JButton btnPaso = new JButton("Paso a paso");
         JButton btnLimpiar = new JButton("Limpiar");
 
-        comboBoxAlgoritmos = new JComboBox<>(new String[]{
-                "Recursivo 2D",
-                "Recursivo 4D",
-                "Recursivo 4D BT",
-                "DFS",
-                "BFS"
-        });
+        bottomPanel.add(comboBoxAlgoritmos);
+        bottomPanel.add(btnResolver);
+        bottomPanel.add(btnPaso);
+        bottomPanel.add(btnLimpiar);
+        add(bottomPanel, BorderLayout.SOUTH);
 
-        panelBotones.add(btnSetStart);
-        panelBotones.add(btnSetEnd);
-        panelBotones.add(btnToggleWall);
-        panelBotones.add(comboBoxAlgoritmos);
-        panelBotones.add(btnResolver);
-        panelBotones.add(btnPaso);
-        panelBotones.add(btnLimpiar);
-
-        add(panelBotones, BorderLayout.NORTH);
-
-        mazePanel = new MazePanel(filas, columnas);
-        add(mazePanel, BorderLayout.CENTER);
-
+        // Listeners
         btnSetStart.addActionListener(e -> mazePanel.setCurrentMode(MazePanel.Mode.SET_START));
         btnSetEnd.addActionListener(e -> mazePanel.setCurrentMode(MazePanel.Mode.SET_END));
         btnToggleWall.addActionListener(e -> mazePanel.setCurrentMode(MazePanel.Mode.TOGGLE_WALL));
@@ -84,17 +99,23 @@ public class MazeFrame extends JFrame {
                 "Primero elige tamaño. Luego marca inicio, fin y muros. Escoge algoritmo y resuelve."));
         acercaDe.addActionListener(e -> JOptionPane.showMessageDialog(this,
                 "Autores: Erick Yunga y Brandon Rivera\nGitHub: ErickJYC, BrandonFRZ-cki"));
+
+        SwingUtilities.invokeLater(() -> btnSetStart.requestFocusInWindow());
     }
 
     private String getAlgoritmoSeleccionado() {
-        return (String) comboBoxAlgoritmos.getSelectedItem();
+        String visible = (String) comboBoxAlgoritmos.getSelectedItem();
+        return nombreInternoAlgoritmo.getOrDefault(visible, "BFS");
     }
 
     public void setMazePanel(MazePanel panel) {
         remove(mazePanel);
         this.mazePanel = panel;
-        add(panel, BorderLayout.CENTER);
+        JPanel centerWrapper = new JPanel(new GridBagLayout());
+        centerWrapper.add(mazePanel, new GridBagConstraints());
+        add(centerWrapper, BorderLayout.CENTER);
         revalidate();
         repaint();
     }
 }
+

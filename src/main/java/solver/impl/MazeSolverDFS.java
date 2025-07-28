@@ -21,10 +21,13 @@ public class MazeSolverDFS implements MazeSolver {
         stack.push(start);
         visited.add(start);
 
+        boolean found = false;
+
         while (!stack.isEmpty()) {
             Cell current = stack.pop();
 
             if (current.equals(end)) {
+                found = true;
                 break;
             }
 
@@ -38,14 +41,12 @@ public class MazeSolverDFS implements MazeSolver {
             }
         }
 
-        // Reconstruir el camino
-        Cell step = end;
-        while (step != null && parentMap.containsKey(step)) {
-            path.add(0, step);
-            step = parentMap.get(step);
-        }
-        if (step != null && step.equals(start)) {
-            path.add(0, start);
+        if (found) {
+            Cell step = end;
+            while (step != null) {
+                path.add(0, step);
+                step = parentMap.get(step);
+            }
         }
 
         return new SolveResults(path, visited);

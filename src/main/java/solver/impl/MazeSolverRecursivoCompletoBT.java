@@ -21,8 +21,14 @@ public class MazeSolverRecursivoCompletoBT implements MazeSolver {
         this.end = end;
         this.path = new ArrayList<>();
         this.visited = new LinkedHashSet<>();
-        findPath(start);
-        return new SolveResults(path, visited);
+
+        boolean found = findPath(start);
+
+        if (found) {
+            return new SolveResults(new ArrayList<>(path), new LinkedHashSet<>(visited));
+        } else {
+            return null; // Indica que no se encontró un camino válido
+        }
     }
 
     private boolean findPath(Cell current) {
@@ -40,7 +46,7 @@ public class MazeSolverRecursivoCompletoBT implements MazeSolver {
             return true;
         }
 
-        // Movimiento en 4 direcciones
+        // Intentar en 4 direcciones
         if (findPath(new Cell(row + 1, col)) ||
                 findPath(new Cell(row - 1, col)) ||
                 findPath(new Cell(row, col + 1)) ||
@@ -48,7 +54,7 @@ public class MazeSolverRecursivoCompletoBT implements MazeSolver {
             return true;
         }
 
-        // Backtrack si no hay salida
+        // Retroceso (backtracking)
         path.remove(path.size() - 1);
         return false;
     }

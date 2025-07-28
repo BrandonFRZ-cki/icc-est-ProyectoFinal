@@ -49,10 +49,22 @@ public class AlgorithmResult {
         String[] parts = line.split(",");
         if (parts.length != 3) return null;
 
-        String name = parts[0];
-        int steps = Integer.parseInt(parts[1]);
-        long time = Long.parseLong(parts[2]);
+        try {
+            String name = parts[0];
+            int steps = Integer.parseInt(parts[1]);
+            long time = Long.parseLong(parts[2]);
+            return new AlgorithmResult(name, steps, time);
+        } catch (NumberFormatException e) {
+            return null;
+        }
+    }
 
-        return new AlgorithmResult(name, steps, time);
+    @Override
+    public String toString() {
+        return "AlgorithmResult{" +
+                "algorithmName='" + algorithmName + '\'' +
+                ", steps=" + steps +
+                ", timeNano=" + timeNano +
+                '}';
     }
 }

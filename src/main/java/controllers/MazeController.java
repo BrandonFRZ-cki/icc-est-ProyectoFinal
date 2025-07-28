@@ -23,6 +23,9 @@ public class MazeController {
         inicializarAlgoritmos();
     }
 
+    /**
+     * Registra los algoritmos disponibles.
+     */
     private void inicializarAlgoritmos() {
         algoritmos.put("Recursivo 2D", new MazeSolverRecursivo());
         algoritmos.put("Recursivo 4D", new MazeSolverRecursivoCompleto());
@@ -31,7 +34,12 @@ public class MazeController {
         algoritmos.put("DFS", new MazeSolverDFS());
     }
 
+    /**
+     * Lógica principal para resolver el laberinto usando el algoritmo especificado.
+     */
     public SolveResults resolverLaberinto(String algoritmoNombre, CellState[][] estados, Cell inicio, Cell fin) {
+        if (inicio == null || fin == null) return null;
+
         MazeSolver solver = algoritmos.get(algoritmoNombre);
         if (solver == null) return null;
 
@@ -40,7 +48,7 @@ public class MazeController {
         SolveResults resultado = solver.solve(maze, inicio, fin);
         long tiempoTotal = System.nanoTime() - inicioTiempo;
 
-        if (resultado != null && resultado.getPath() != null) {
+        if (resultado != null && resultado.getPath() != null && !resultado.getPath().isEmpty()) {
             resultado.setTiempo(tiempoTotal);
             resultado.setAlgoritmo(algoritmoNombre);
             dao.guardar(new AlgorithmResult(algoritmoNombre, resultado.getPath().size(), tiempoTotal));
@@ -49,6 +57,9 @@ public class MazeController {
         return resultado;
     }
 
+    /**
+     * Convierte la matriz de estados a una matriz booleana (true = camino, false = muro).
+     */
     private boolean[][] convertirAMatrizBooleana(CellState[][] estados) {
         int filas = estados.length;
         int columnas = estados[0].length;
@@ -74,8 +85,10 @@ public class MazeController {
     public Map<String, MazeSolver> getAlgoritmos() {
         return algoritmos;
     }
-    // Agrega al final de la clase MazeController:
 
+    /**
+     * Ejecuta el algoritmo completo y muestra el camino y las celdas visitadas.
+     */
     public void resolver(views.MazePanel panel, String algoritmoNombre) {
         SolveResults resultado = resolverLaberinto(
                 algoritmoNombre,
@@ -84,8 +97,9 @@ public class MazeController {
                 panel.getEndCell()
         );
 
-        if (resultado != null) {
-            panel.clearPathAndVisited();
+        panel.clearPathAndVisited();
+
+        if (resultado != null && resultado.getPath() != null && !resultado.getPath().isEmpty()) {
             panel.setVisited(resultado.getVisited());
             panel.setPath(resultado.getPath());
         } else {
@@ -93,6 +107,9 @@ public class MazeController {
         }
     }
 
+    /**
+     * Muestra solo las celdas visitadas (modo paso a paso).
+     */
     public void paso(views.MazePanel panel, String algoritmoNombre) {
         SolveResults resultado = resolverLaberinto(
                 algoritmoNombre,
@@ -101,14 +118,18 @@ public class MazeController {
                 panel.getEndCell()
         );
 
-        if (resultado != null) {
-            panel.clearPathAndVisited();
-            panel.setVisited(resultado.getVisited());  // Solo muestra nodos visitados
+        panel.clearPathAndVisited();
+
+        if (resultado != null && resultado.getVisited() != null && !resultado.getVisited().isEmpty()) {
+            panel.setVisited(resultado.getVisited());
         } else {
             javax.swing.JOptionPane.showMessageDialog(null, "No se pudo encontrar un camino.");
         }
     }
 
+    /**
+     * Abre un nuevo laberinto pidiendo filas y columnas.
+     */
     public void nuevoLaberinto() {
         try {
             int filas = Integer.parseInt(javax.swing.JOptionPane.showInputDialog("Número de filas:"));
@@ -120,9 +141,11 @@ public class MazeController {
         }
     }
 
+    /**
+     * Muestra el historial de resultados en una ventana.
+     */
     public void mostrarResultados(javax.swing.JFrame parent) {
         views.ResultadosDialog dialog = new views.ResultadosDialog(parent, dao);
         dialog.setVisible(true);
     }
-
 }
