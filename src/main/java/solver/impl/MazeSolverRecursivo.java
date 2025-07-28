@@ -10,62 +10,52 @@ import java.util.List;
 import java.util.Set;
 
 public class MazeSolverRecursivo implements MazeSolver {
-    private Set<Cell> visitadas;
-    private List<Cell> camino;
-    private boolean[][] laberinto;
-    private Cell destino;
 
-    public SolveResults resolver(boolean[][] laberinto, Cell inicio, Cell fin) {
-        this.laberinto = laberinto;
-        this.destino = fin;
-        this.visitadas = new HashSet<>();
-        this.camino = new ArrayList<>();
+    private final List<Cell> path = new ArrayList<>();
+    private final Set<Cell> visited = new HashSet<>();
+    private boolean[][] grid;
+    private Cell end;
 
-        backtrack(inicio);
+    @Override
+    public SolveResults solve(boolean[][] maze, Cell start, Cell end) {
+        this.grid = maze;
+        this.end = end;
+        path.clear();
+        visited.clear();
 
-        SolveResults resultado = new SolveResults();
-        resultado.agregarResultado(camino, visitadas);
-        return resultado;
+        findPath(start);
+        return new SolveResults(new ArrayList<>(path), new HashSet<>(visited));
     }
 
-    private boolean backtrack(Cell actual) {
-        if (!esValido(actual) || visitadas.contains(actual)) {
+    private boolean findPath(Cell current) {
+        int row = current.getRow();
+        int col = current.getCol();
+
+        if (!isInBounds(row, col) || !grid[row][col] || visited.contains(current)) {
             return false;
         }
-        visitadas.add(actual);
-        camino.add(actual);
 
-        if (actual.equals(destino)) {
+        visited.add(current);
+        path.add(current);
+
+        if (current.equals(end)) {
             return true;
         }
 
-        for (Cell vecino : obtenerVecinos(actual)) {
-            if (backtrack(vecino)) {
-                return true;
-            }
+        // Buscar en las 4 direcciones
+        if (findPath(new Cell(row + 1, col)) || // abajo
+                findPath(new Cell(row - 1, col)) || // arriba
+                findPath(new Cell(row, col + 1)) || // derecha
+                findPath(new Cell(row, col - 1))) { // izquierda
+            return true;
         }
 
-        camino.remove(camino.size() - 1);
+        // Retroceder (backtrack)
+        path.remove(path.size() - 1);
         return false;
     }
 
-    private boolean esValido(Cell c) {
-        int r = c.getRow();
-        int col = c.getCol();
-        return r >= 0 && col >= 0 && r < laberinto.length && col < laberinto[0].length && laberinto[r][col];
-    }
-
-    private List<Cell> obtenerVecinos(Cell c) {
-        int[][] dirs = {{1,0},{-1,0},{0,1},{0,-1}};
-        List<Cell> vecinos = new ArrayList<>();
-        for (int[] d : dirs) {
-            int r = c.getRow() + d[0];
-            int col = c.getCol() + d[1];
-            Cell vecino = new Cell(r, col);
-            if (esValido(vecino) && !visitadas.contains(vecino)) {
-                vecinos.add(vecino);
-            }
-        }
-        return vecinos;
+    private boolean isInBounds(int row, int col) {
+        return row >= 0 && row < grid.length && col >= 0 && col < grid[0].length;
     }
 }

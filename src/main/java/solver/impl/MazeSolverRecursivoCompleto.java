@@ -4,63 +4,60 @@ import models.Cell;
 import models.SolveResults;
 import solver.MazeSolver;
 
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class MazeSolverRecursivoCompleto implements MazeSolver {
-    private boolean[][] laberinto;
-    private Cell destino;
-    private List<Cell> camino;
-    private Set<Cell> visitadas;
 
-    public SolveResults resolver(boolean[][] laberinto, Cell inicio, Cell fin) {
-        this.laberinto = laberinto;
-        this.destino = fin;
-        this.camino = new ArrayList<>();
-        this.visitadas = new LinkedHashSet<>();
+    private final List<Cell> path = new ArrayList<>();
+    private final Set<Cell> visited = new HashSet<>();
+    private boolean[][] grid;
+    private Cell end;
 
-        buscar(inicio);
+    @Override
+    public SolveResults solve(boolean[][] maze, Cell start, Cell end) {
+        this.grid = maze;
+        this.end = end;
+        path.clear();
+        visited.clear();
 
-        SolveResults resultado = new SolveResults();
-        resultado.agregarResultado(camino, visitadas);
-        return resultado;
+        boolean exito = findPath(start);
+
+        if (exito) {
+            return new SolveResults(new ArrayList<>(path), new HashSet<>(visited));
+        } else {
+            return null; // para que se muestre el mensaje "No se pudo encontrar un camino"
+        }
     }
 
-    private boolean buscar(Cell actual) {
-        if (!esValido(actual) || visitadas.contains(actual)) return false;
+    private boolean findPath(Cell current) {
+        int row = current.getRow();
+        int col = current.getCol();
 
-        visitadas.add(actual);
-        camino.add(actual);
-
-        if (actual.equals(destino)) return true;
-
-        for (Cell vecino : obtenerVecinos(actual)) {
-            if (buscar(vecino)) return true;
+        if (!isInBounds(row, col) || !grid[row][col] || visited.contains(current)) {
+            return false;
         }
 
-        camino.remove(camino.size() - 1);
+        visited.add(current);
+        path.add(current);
+
+        if (current.equals(end)) {
+            return true;
+        }
+
+        // Recursión en 4 direcciones
+        if (findPath(new Cell(row + 1, col)) || // abajo
+                findPath(new Cell(row - 1, col)) || // arriba
+                findPath(new Cell(row, col + 1)) || // derecha
+                findPath(new Cell(row, col - 1))) { // izquierda
+            return true;
+        }
+
+        // Retroceso (backtrack)
+        path.remove(path.size() - 1);
         return false;
     }
 
-    private boolean esValido(Cell c) {
-        int r = c.getRow();
-        int col = c.getCol();
-        return r >= 0 && col >= 0 && r < laberinto.length && col < laberinto[0].length && laberinto[r][col];
-    }
-
-    private List<Cell> obtenerVecinos(Cell c) {
-        int[][] dirs = {{1,0},{0,1},{-1,0},{0,-1}};
-        List<Cell> vecinos = new ArrayList<>();
-        for (int[] d : dirs) {
-            int r = c.getRow() + d[0];
-            int col = c.getCol() + d[1];
-            Cell vecino = new Cell(r, col);
-            if (esValido(vecino)) {
-                vecinos.add(vecino);
-            }
-        }
-        return vecinos;
+    private boolean isInBounds(int row, int col) {
+        return row >= 0 && row < grid.length && col >= 0 && col < grid[0].length;
     }
 }
