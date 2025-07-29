@@ -26,7 +26,7 @@ public class MazeFrame extends JFrame {
         this.controller = controller;
         this.solverMap = controller.getAlgoritmos();
         setTitle("Resolución de Laberintos");
-        setDefaultCloseOperation(EXIT_ON_CLOSE);
+        setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         setMinimumSize(new Dimension(600, 500));
         setLocationRelativeTo(null);
         initComponents(filas, columnas);
