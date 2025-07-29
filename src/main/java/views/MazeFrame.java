@@ -78,10 +78,13 @@ public class MazeFrame extends JFrame {
         JButton btnResolver = new JButton("Resolver");
         JButton btnPaso = new JButton("Paso a paso");
         JButton btnLimpiar = new JButton("Limpiar");
-        JButton btnLimpiarCamino = new JButton("Limpiar camino"); // nuevo botón
+        JButton btnLimpiarCamino = new JButton("Limpiar camino");
+        JButton btnResolverAnimado = new JButton("Resolver animado");
+
 
         bottomPanel.add(comboBoxAlgoritmos);
         bottomPanel.add(btnResolver);
+        bottomPanel.add(btnResolverAnimado);
         bottomPanel.add(btnPaso);
         bottomPanel.add(btnLimpiar);
         bottomPanel.add(btnLimpiarCamino);
@@ -91,10 +94,27 @@ public class MazeFrame extends JFrame {
         btnSetStart.addActionListener(e -> mazePanel.setCurrentMode(MazePanel.Mode.SET_START));
         btnSetEnd.addActionListener(e -> mazePanel.setCurrentMode(MazePanel.Mode.SET_END));
         btnToggleWall.addActionListener(e -> mazePanel.setCurrentMode(MazePanel.Mode.TOGGLE_WALL));
-        btnResolver.addActionListener(e -> controller.resolver(mazePanel, getAlgoritmoSeleccionado()));
+        btnResolver.addActionListener(e -> {
+            controller.reiniciarPasoAPaso();
+            controller.resolver(mazePanel, getAlgoritmoSeleccionado());
+        });
+        btnResolverAnimado.addActionListener(e -> {
+            controller.reiniciarPasoAPaso(); // opcional, para evitar conflicto
+            controller.resolverAnimado(mazePanel, getAlgoritmoSeleccionado());
+        });
+
         btnPaso.addActionListener(e -> controller.paso(mazePanel, getAlgoritmoSeleccionado()));
-        btnLimpiar.addActionListener(e -> mazePanel.resetGrid());
-        btnLimpiarCamino.addActionListener(e -> mazePanel.clearPathAndVisited());
+        btnLimpiar.addActionListener(e -> {
+            controller.reiniciarPasoAPaso();
+            mazePanel.resetGrid();
+        });
+
+        btnLimpiarCamino.addActionListener(e -> {
+            controller.reiniciarPasoAPaso();
+            mazePanel.clearPathAndVisited();
+        });
+
+        comboBoxAlgoritmos.addActionListener(e -> controller.reiniciarPasoAPaso());
 
 
         nuevo.addActionListener(e -> controller.nuevoLaberinto());
