@@ -78,11 +78,13 @@ public class MazeFrame extends JFrame {
         JButton btnResolver = new JButton("Resolver");
         JButton btnPaso = new JButton("Paso a paso");
         JButton btnLimpiar = new JButton("Limpiar");
+        JButton btnLimpiarCamino = new JButton("Limpiar camino"); // nuevo botón
 
         bottomPanel.add(comboBoxAlgoritmos);
         bottomPanel.add(btnResolver);
         bottomPanel.add(btnPaso);
         bottomPanel.add(btnLimpiar);
+        bottomPanel.add(btnLimpiarCamino);
         add(bottomPanel, BorderLayout.SOUTH);
 
         // Listeners
@@ -92,6 +94,8 @@ public class MazeFrame extends JFrame {
         btnResolver.addActionListener(e -> controller.resolver(mazePanel, getAlgoritmoSeleccionado()));
         btnPaso.addActionListener(e -> controller.paso(mazePanel, getAlgoritmoSeleccionado()));
         btnLimpiar.addActionListener(e -> mazePanel.resetGrid());
+        btnLimpiarCamino.addActionListener(e -> mazePanel.clearPathAndVisited());
+
 
         nuevo.addActionListener(e -> controller.nuevoLaberinto());
         verResultados.addActionListener(e -> controller.mostrarResultados(this));
