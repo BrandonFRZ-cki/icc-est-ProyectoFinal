@@ -9,7 +9,7 @@ import java.util.*;
 public class MazeSolverRecursivoCompleto implements MazeSolver {
 
     private final List<Cell> path = new ArrayList<>();
-    private final Set<Cell> visited = new HashSet<>();
+    private final List<Cell> ordenDeVisita = new ArrayList<>(); // orden para paso a paso
     private boolean[][] grid;
     private Cell end;
 
@@ -18,14 +18,14 @@ public class MazeSolverRecursivoCompleto implements MazeSolver {
         this.grid = maze;
         this.end = end;
         path.clear();
-        visited.clear();
+        ordenDeVisita.clear();
 
         boolean exito = findPath(start);
 
         if (exito) {
-            return new SolveResults(new ArrayList<>(path), new HashSet<>(visited));
+            return new SolveResults(new ArrayList<>(path), new LinkedHashSet<>(ordenDeVisita));
         } else {
-            return null; // para que se muestre el mensaje "No se pudo encontrar un camino"
+            return null;
         }
     }
 
@@ -33,18 +33,18 @@ public class MazeSolverRecursivoCompleto implements MazeSolver {
         int row = current.getRow();
         int col = current.getCol();
 
-        if (!isInBounds(row, col) || !grid[row][col] || visited.contains(current)) {
-            return false;
-        }
+        // Validación de límites y obstáculos
+        if (!isInBounds(row, col) || !grid[row][col]) return false;
+        if (path.contains(current)) return false; // ya está en camino actual
 
-        visited.add(current);
-        path.add(current);
+        ordenDeVisita.add(current);  // registrar visita para animación
+        path.add(current);           // intentar agregar al camino
 
         if (current.equals(end)) {
             return true;
         }
 
-        // Recursión en 4 direcciones
+        // Explorar en las 4 direcciones
         if (findPath(new Cell(row + 1, col)) || // abajo
                 findPath(new Cell(row - 1, col)) || // arriba
                 findPath(new Cell(row, col + 1)) || // derecha
@@ -52,7 +52,7 @@ public class MazeSolverRecursivoCompleto implements MazeSolver {
             return true;
         }
 
-        // Retroceso (backtrack)
+        // Retroceso (backtracking)
         path.remove(path.size() - 1);
         return false;
     }

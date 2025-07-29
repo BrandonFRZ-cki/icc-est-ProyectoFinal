@@ -12,7 +12,8 @@ public class MazeSolverBFS implements MazeSolver {
     public SolveResults solve(boolean[][] maze, Cell start, Cell end) {
         Queue<Cell> queue = new LinkedList<>();
         Map<Cell, Cell> parentMap = new HashMap<>();
-        Set<Cell> visited = new HashSet<>();
+        Set<Cell> visited = new LinkedHashSet<>();
+
 
         queue.offer(start);
         visited.add(start);

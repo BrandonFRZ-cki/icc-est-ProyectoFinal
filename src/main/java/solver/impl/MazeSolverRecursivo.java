@@ -4,15 +4,12 @@ import models.Cell;
 import models.SolveResults;
 import solver.MazeSolver;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class MazeSolverRecursivo implements MazeSolver {
 
     private final List<Cell> path = new ArrayList<>();
-    private final Set<Cell> visited = new HashSet<>();
+    private final List<Cell> ordenDeVisita = new ArrayList<>(); // para el paso a paso
     private boolean[][] grid;
     private Cell end;
 
@@ -21,37 +18,36 @@ public class MazeSolverRecursivo implements MazeSolver {
         this.grid = maze;
         this.end = end;
         path.clear();
-        visited.clear();
+        ordenDeVisita.clear();
 
         findPath(start);
-        return new SolveResults(new ArrayList<>(path), new HashSet<>(visited));
+        return new SolveResults(new ArrayList<>(path), new LinkedHashSet<>(ordenDeVisita));
     }
 
     private boolean findPath(Cell current) {
         int row = current.getRow();
         int col = current.getCol();
 
-        if (!isInBounds(row, col) || !grid[row][col] || visited.contains(current)) {
-            return false;
-        }
+        if (!isInBounds(row, col) || !grid[row][col]) return false;
+        if (path.contains(current)) return false;
 
-        visited.add(current);
+        ordenDeVisita.add(current);
         path.add(current);
 
         if (current.equals(end)) {
             return true;
         }
 
-        // Buscar en las 4 direcciones
-        if (findPath(new Cell(row + 1, col)) || // abajo
-                findPath(new Cell(row - 1, col)) || // arriba
-                findPath(new Cell(row, col + 1)) || // derecha
-                findPath(new Cell(row, col - 1))) { // izquierda
+        // Intentar en las 4 direcciones
+        if (findPath(new Cell(row + 1, col)) ||
+                findPath(new Cell(row - 1, col)) ||
+                findPath(new Cell(row, col + 1)) ||
+                findPath(new Cell(row, col - 1))) {
             return true;
         }
 
-        // Retroceder (backtrack)
-        path.remove(path.size() - 1);
+        // Retroceder
+        path.remove(path.size() - 1); // quita del camino si no sirve
         return false;
     }
 
@@ -59,3 +55,4 @@ public class MazeSolverRecursivo implements MazeSolver {
         return row >= 0 && row < grid.length && col >= 0 && col < grid[0].length;
     }
 }
+
