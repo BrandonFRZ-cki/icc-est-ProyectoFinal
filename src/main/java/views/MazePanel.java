@@ -157,6 +157,7 @@ public class MazePanel extends JPanel {
         repaint();
     }
 
+
     /**
      * Define el tamaño preferido del panel.
      */

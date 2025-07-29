@@ -7,15 +7,20 @@ import models.CellState;
 import models.SolveResults;
 import solver.MazeSolver;
 import solver.impl.*;
+import views.MazePanel;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import javax.swing.*;
+import java.util.*;
 
 public class MazeController {
 
     private final AlgorithmResultDAO dao;
     private final Map<String, MazeSolver> algoritmos;
+    private List<Cell> pasoAPasoCeldas; // lista ordenada de celdas visitadas
+    private int pasoActual = 0;
+    private List<Cell> caminoEncontrado; // ← nuevo
+
+
 
     public MazeController(AlgorithmResultDAO dao) {
         this.dao = dao;
@@ -107,10 +112,7 @@ public class MazeController {
         }
     }
 
-    /**
-     * Muestra solo las celdas visitadas (modo paso a paso).
-     */
-    public void paso(views.MazePanel panel, String algoritmoNombre) {
+    public void resolverAnimado(MazePanel panel, String algoritmoNombre) {
         SolveResults resultado = resolverLaberinto(
                 algoritmoNombre,
                 panel.getCellStates(),
@@ -120,12 +122,75 @@ public class MazeController {
 
         panel.clearPathAndVisited();
 
-        if (resultado != null && resultado.getVisited() != null && !resultado.getVisited().isEmpty()) {
-            panel.setVisited(resultado.getVisited());
-        } else {
-            javax.swing.JOptionPane.showMessageDialog(null, "No se pudo encontrar un camino.");
+        if (resultado == null || resultado.getPath() == null || resultado.getPath().isEmpty()) {
+            JOptionPane.showMessageDialog(null, "No se pudo encontrar un camino.");
+            return;
         }
+
+        List<Cell> visitadas = new ArrayList<>(resultado.getVisited());
+        List<Cell> camino = new ArrayList<>(resultado.getPath());
+
+        new Thread(() -> {
+            try {
+                for (Cell v : visitadas) {
+                    Thread.sleep(10); // animación de nodos explorados
+                    SwingUtilities.invokeLater(() -> panel.setVisited(Set.of(v)));
+                }
+
+                for (Cell c : camino) {
+                    Thread.sleep(40); // animación del camino final
+                    SwingUtilities.invokeLater(() -> panel.setPath(List.of(c)));
+                }
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }).start();
     }
+
+
+    /**
+     * Muestra solo las celdas visitadas (modo paso a paso).
+     */
+    public void paso(MazePanel panel, String algoritmoNombre) {
+        if (pasoAPasoCeldas == null) {
+            SolveResults resultado = resolverLaberinto(
+                    algoritmoNombre,
+                    panel.getCellStates(),
+                    panel.getStartCell(),
+                    panel.getEndCell()
+            );
+
+            if (resultado == null || resultado.getVisited() == null || resultado.getVisited().isEmpty()) {
+                JOptionPane.showMessageDialog(null, "No se pudo encontrar un camino.");
+                return;
+            }
+
+            pasoAPasoCeldas = new ArrayList<>(resultado.getVisited());
+            caminoEncontrado = new ArrayList<>(resultado.getPath());
+            pasoActual = 0;
+
+            panel.clearPathAndVisited();
+        }
+
+        // Pintar el paso actual (si hay)
+        if (pasoActual < pasoAPasoCeldas.size()) {
+            Cell siguiente = pasoAPasoCeldas.get(pasoActual++);
+            panel.setVisited(Set.of(siguiente));
+        } else {
+            panel.setPath(caminoEncontrado);
+            JOptionPane.showMessageDialog(null, "Camino encontrado mostrado.");
+            pasoActual = 0;
+            pasoAPasoCeldas = null;
+            caminoEncontrado = null;
+        }
+
+    }
+    public void reiniciarPasoAPaso() {
+        pasoActual = 0;
+        pasoAPasoCeldas = null;
+        caminoEncontrado = null;
+    }
+
 
     /**
      * Abre un nuevo laberinto pidiendo filas y columnas.
@@ -148,4 +213,5 @@ public class MazeController {
         views.ResultadosDialog dialog = new views.ResultadosDialog(parent, dao);
         dialog.setVisible(true);
     }
+
 }

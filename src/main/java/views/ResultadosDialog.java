@@ -3,6 +3,13 @@ package views;
 import dao.AlgorithmResultDAO;
 import models.AlgorithmResult;
 
+import org.jfree.chart.ChartFactory;
+import org.jfree.chart.ChartPanel;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.chart.renderer.category.LineAndShapeRenderer;
+import org.jfree.data.category.DefaultCategoryDataset;
+
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
@@ -46,7 +53,7 @@ public class ResultadosDialog extends JDialog {
         JPanel panelBotones = new JPanel(new FlowLayout(FlowLayout.RIGHT, 15, 10));
 
         JButton btnGraficar = new JButton("Graficar Resultados");
-        btnGraficar.setEnabled(false); // aún no implementado
+        btnGraficar.setEnabled(true); // ahora sí implementado
         btnGraficar.addActionListener(e -> graficarResultados());
         panelBotones.add(btnGraficar);
 
@@ -71,15 +78,52 @@ public class ResultadosDialog extends JDialog {
     }
 
     /**
-     * Método de placeholder para futura visualización gráfica.
+     * Muestra una gráfica de barras con los tiempos de ejecución por algoritmo.
      */
     private void graficarResultados() {
-        JOptionPane.showMessageDialog(this,
-                "Funcionalidad de gráficos aún no implementada.",
-                "Información",
-                JOptionPane.INFORMATION_MESSAGE);
-    }
+        List<AlgorithmResult> resultados = resultDAO.listar();
 
+        if (resultados.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "No hay resultados para graficar.");
+            return;
+        }
+
+        // Dataset de línea
+        var dataset = new org.jfree.data.category.DefaultCategoryDataset();
+        for (AlgorithmResult r : resultados) {
+            dataset.addValue(r.getTimeNano(), "Tiempo(ns)", r.getAlgorithmName());
+        }
+
+        var chart = org.jfree.chart.ChartFactory.createLineChart(
+                "Tiempos de Ejecución por Algoritmo",
+                "Algoritmo",
+                "Tiempo (ns)",
+                dataset,
+                org.jfree.chart.plot.PlotOrientation.VERTICAL,
+                true,
+                true,
+                false
+        );
+
+        // Personalización visual
+        var plot = chart.getCategoryPlot();
+        plot.setBackgroundPaint(Color.DARK_GRAY);
+        plot.setRangeGridlinePaint(Color.WHITE);
+
+        var renderer = new org.jfree.chart.renderer.category.LineAndShapeRenderer();
+        renderer.setSeriesPaint(0, Color.RED);
+        plot.setRenderer(renderer);
+
+        var chartPanel = new org.jfree.chart.ChartPanel(chart);
+        chartPanel.setPreferredSize(new Dimension(700, 400));
+
+        var ventanaGrafica = new JFrame("Gráfica");
+        ventanaGrafica.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        ventanaGrafica.setContentPane(chartPanel);
+        ventanaGrafica.pack();
+        ventanaGrafica.setLocationRelativeTo(this);
+        ventanaGrafica.setVisible(true);
+    }
     /**
      * Limpia todos los resultados después de confirmación del usuario.
      */
